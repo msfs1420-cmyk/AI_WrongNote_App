@@ -1,9 +1,10 @@
 import streamlit as st
 import google.generativeai as genai
 import os
-from PIL import Image
+import PyPDF2
+from streamlit_pdf_viewer import pdf_viewer
 
-# 1. API 키 설정 (보안 유지)
+# 1. API 키 설정
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
 else:
@@ -11,31 +12,31 @@ else:
 
 genai.configure(api_key=api_key)
 
-# 2. UI 설정
 st.set_page_config(layout="wide")
 st.title("🎓 AI 스마트 롱노트 프로")
 
-# 3. 파일 업로드 (이미지 전용)
-uploaded_file = st.file_uploader("문제 사진(JPG, PNG)을 올리세요", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader("PDF 파일을 올리세요", type=["pdf"])
 
 if uploaded_file is not None:
-    # 이미지 열기
-    image = Image.open(uploaded_file)
-    st.image(image, caption="업로드한 문제", use_column_width=True)
+    # 1. PDF 뷰어로 화면에 보여주기 (서버 변환 없음)
+    pdf_viewer(uploaded_file.read())
     
-    # 4. 분석 시작 버튼
-    if st.button("AI 분석 시작"):
-        with st.spinner("AI가 문제를 분석 중입니다..."):
+    if st.button("AI 텍스트 분석 시작"):
+        with st.spinner("PDF에서 텍스트를 추출하여 분석 중입니다..."):
             try:
-                # Gemini 모델 호출
-                model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-                response = model.generate_content(["이 문제를 풀고 상세히 해설해줘.", image])
+                # 2. PyPDF2로 텍스트 추출
+                pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
                 
-                # 결과 출력
+                # 3. 모델 분석
+                model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+                response = model.generate_content(f"다음 문제 내용을 분석하고 상세히 해설해줘:\n\n{text}")
+                
                 st.subheader("AI 분석 결과")
                 st.write(response.text)
             except Exception as e:
-                st.error(f"분석 중 오류가 발생했습니다: {e}")
+                st.error(f"분석 중 오류 발생: {e}")
 
-# 5. 안내 문구
-st.info("💡 PDF 파일이 있다면, 캡처 도구로 사진을 찍어 JPG/PNG로 저장해 올리시면 가장 빠르고 정확하게 분석됩니다!")
+st.info("💡 텍스트 기반 분석이라 매우 빠르고 정확합니다!")
