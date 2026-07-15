@@ -16,8 +16,8 @@ if uploaded_file:
     if st.button("분석 실행"):
         try:
             st.write("모델 호출 중...")
-            # 에러가 발생하던 모델명을 수정했습니다.
-            model = genai.GenerativeModel("gemini-1.5-flash-latest")
+            # 가장 기본적인 모델명으로 다시 시도합니다.
+            model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(["이 문제를 풀고 상세히 해설해줘.", image])
             st.write("### AI 분석 결과")
             st.write(response.text)
