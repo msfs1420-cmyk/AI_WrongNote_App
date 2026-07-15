@@ -16,15 +16,10 @@ if uploaded_file:
     if st.button("분석 실행"):
         try:
             st.write("모델 호출 중...")
-            # 모델 이름을 직접 넣지 않고, 사용 가능한 모델 중 flash 모델을 찾아 생성합니다.
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            # 리스트에 있는 정확한 모델명 사용
+            model = genai.GenerativeModel("models/gemini-2.5-flash")
             response = model.generate_content(["이 문제를 풀고 상세히 해설해줘.", image])
             st.write("### AI 분석 결과")
             st.write(response.text)
         except Exception as e:
-            # 에러 발생 시, 현재 API 키에서 사용 가능한 모델 목록을 출력하게 합니다.
             st.error(f"오류가 발생했습니다: {e}")
-            st.write("---")
-            st.write("### 현재 사용 가능한 모델 목록:")
-            for m in genai.list_models():
-                st.write(f"- {m.name}")
