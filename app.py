@@ -16,8 +16,8 @@ if uploaded_file:
     if st.button("분석 실행"):
         try:
             st.write("모델 호출 중...")
-            # 리스트에 있는 정확한 모델명 사용
-            model = genai.GenerativeModel("models/gemini-2.5-flash")
+            # 가장 최신 모델인 gemini-3.5-flash로 수정했습니다.
+            model = genai.GenerativeModel("models/gemini-3.5-flash")
             response = model.generate_content(["이 문제를 풀고 상세히 해설해줘.", image])
             st.write("### AI 분석 결과")
             st.write(response.text)
