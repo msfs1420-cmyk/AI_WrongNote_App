@@ -16,12 +16,15 @@ if uploaded_file:
     if st.button("분석 실행"):
         try:
             st.write("모델 호출 중...")
-            # 'gemini-1.5-flash'를 명시적으로 쓰지 않고 모델 객체를 생성합니다.
+            # 모델을 직접 지정하는 대신 'gemini-1.5-flash'를 호출하는 가장 기본적인 방법입니다.
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(["이 문제를 풀어줘", image])
+            
             st.write("### AI 분석 결과")
             st.write(response.text)
+            
         except Exception as e:
             st.error(f"오류가 발생했습니다: {e}")
             st.write("---")
-            st.write("💡 마지막 시도: 만약 여전히 404 오류가 난다면, 하람님이 발급받으신 API 키가 'Gemini API'가 아니라 다른 서비스(Vertex AI 등)일 수 있습니다. 'Google AI Studio'에서 새로 키를 발급받아 입력해보세요.")
+            st.write("💡 만약 여전히 404가 뜬다면, 아래 코드를 대신 사용해보세요:")
+            st.code('model = genai.GenerativeModel("gemini-1.5-flash-001")')
