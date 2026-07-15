@@ -1,8 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 import os
-import PyPDF2
-from streamlit_pdf_viewer import pdf_viewer
+from PIL import Image
 
 # 1. API 키 설정
 if "GOOGLE_API_KEY" in st.secrets:
@@ -15,28 +14,20 @@ genai.configure(api_key=api_key)
 st.set_page_config(layout="wide")
 st.title("🎓 AI 스마트 롱노트 프로")
 
-uploaded_file = st.file_uploader("PDF 파일을 올리세요", type=["pdf"])
+# PDF를 제거하고 이미지 전용 업로더로 변경
+uploaded_file = st.file_uploader("문제 사진(JPG, PNG)을 올려주세요", type=["jpg", "png", "jpeg"])
 
 if uploaded_file is not None:
-    # 1. PDF 뷰어로 화면에 보여주기 (서버 변환 없음)
-    pdf_viewer(uploaded_file.read())
+    image = Image.open(uploaded_file)
+    st.image(image, caption="업로드한 문제", use_column_width=True)
     
-    if st.button("AI 텍스트 분석 시작"):
-        with st.spinner("PDF에서 텍스트를 추출하여 분석 중입니다..."):
+    if st.button("분석 시작"):
+        with st.spinner("AI가 문제를 분석 중입니다..."):
             try:
-                # 2. PyPDF2로 텍스트 추출
-                pdf_reader = PyPDF2.PdfReader(uploaded_file)
-                text = ""
-                for page in pdf_reader.pages:
-                    text += page.extract_text()
-                
-                # 3. 모델 분석
                 model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-                response = model.generate_content(f"다음 문제 내용을 분석하고 상세히 해설해줘:\n\n{text}")
-                
-                st.subheader("AI 분석 결과")
+                response = model.generate_content(["이 문제를 풀고 해설해줘.", image])
                 st.write(response.text)
             except Exception as e:
-                st.error(f"분석 중 오류 발생: {e}")
+                st.error(f"오류: {e}")
 
-st.info("💡 텍스트 기반 분석이라 매우 빠르고 정확합니다!")
+st.warning("⚠️ PDF 파일은 분석할 수 없습니다. 캡처 도구(Win+Shift+S)로 문제를 캡처해서 올려주세요.")
