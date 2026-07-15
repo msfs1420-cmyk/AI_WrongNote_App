@@ -2,4 +2,5 @@ streamlit
 google-generativeai
 Pillow
 fpdf
-pdf2image
+PyPDF2
+streamlit-pdf-viewer
